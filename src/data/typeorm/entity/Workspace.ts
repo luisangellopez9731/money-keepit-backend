@@ -1,13 +1,19 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, Column, ManyToMany } from "typeorm";
+import { IUser } from "./User";
+import { CommonProperties } from "./CommonProperties";
 
+export interface IWorkspace extends CommonProperties {
+  name: string;
+  description: string;
+}
 @Entity()
-export class Workspace {
-  @PrimaryGeneratedColumn("uuid")
-  id: number;
-
+export class Workspace extends CommonProperties implements IWorkspace {
   @Column()
   name: string;
 
   @Column()
   description: string;
+
+  @ManyToMany("Workspace", "User")
+  users: IUser[];
 }
