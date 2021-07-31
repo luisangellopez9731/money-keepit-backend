@@ -1,12 +1,21 @@
+import "reflect-metadata";
 import express, { json } from "express";
 import cors from "cors";
 import routes from "./controllers/routes";
-const App = express();
+import { createConnection } from "typeorm";
 
-App.use(cors());
-App.use(json());
-App.use(routes);
+createConnection()
+  .then(() => {
+    const App = express();
 
-App.listen(3001, () => {
-  console.log("server running in port 3001");
-});
+    App.use(cors());
+    App.use(json());
+    App.use(routes);
+
+    App.listen(3001, () => {
+      console.log("server running in port 3001");
+    });
+  })
+  .catch((error) => {
+    console.log(error);
+  });
