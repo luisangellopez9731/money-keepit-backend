@@ -2,6 +2,11 @@ import { Entity, Column, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 import { IWorkspace } from "./Workspace";
 import { CommonProperties } from "./CommonProperties";
 
+export interface InsertUser {
+  username: string;
+  password: string;
+}
+
 export interface IUser extends CommonProperties {
   username: string;
   password: string;
