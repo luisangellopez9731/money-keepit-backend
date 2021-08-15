@@ -7,6 +7,15 @@ export interface InsertUser {
   password: string;
 }
 
+export interface LoggingUser extends InsertUser {
+  workspaceId: string;
+}
+
+export interface LoggedUser {
+  username: string;
+  workspace: IWorkspace;
+}
+
 export interface IUser extends CommonProperties {
   username: string;
   password: string;
