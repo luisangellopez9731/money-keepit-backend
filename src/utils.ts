@@ -1,5 +1,5 @@
 import { hash as hashBCrypt, compare as compareBCrypt } from "bcrypt";
-import { sign, verify } from "jsonwebtoken";
+import { JwtPayload, sign, verify } from "jsonwebtoken";
 
 export const hash = async (value: string) => {
   return await hashBCrypt(value, 10);
@@ -36,5 +36,5 @@ export const getTokenInfo = async(authorizationHeader: string) => {
 
   console.log(decoded)
 
-  return decoded;
+  return decoded as JwtPayload;
 };

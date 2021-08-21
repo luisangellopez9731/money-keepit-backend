@@ -20,10 +20,9 @@ export class AuthService {
     if (!user) return error(404, "no existe un usuario con este email");
 
     const correctPassword = await compare(userData.password, user.password);
-    console.log({ correctPassword });
     if (!correctPassword) return error(400, "contraseña incorrecta");
-    const { username } = user;
-    const dataToTokenize = { username };
+    const { id } = user;
+    const dataToTokenize = { id };
     const token = await generateToken(dataToTokenize);
 
     return token;

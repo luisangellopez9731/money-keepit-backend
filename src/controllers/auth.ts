@@ -1,11 +1,16 @@
 import { Router } from "express";
 import { AuthService } from "../services/auth";
-import { getTokenFromAuthorizationHeader, verifyToken } from "utils";
+import {
+  getTokenFromAuthorizationHeader,
+  verifyToken,
+  getTokenInfo,
+} from "utils";
 import { JwtPayload } from "jsonwebtoken";
+import { protect, protectWithoutWorkspace } from "middlewares/auth";
 
 const router = Router();
 
-router.post("/login", async (req, res, next) => {
+router.post("/login-for-workspace", async (req, res, next) => {
   const authorizationHeader = req.headers.authorization;
   let login;
 
@@ -38,6 +43,13 @@ router.post("/login", async (req, res, next) => {
       next(message);
     }
   }
+});
+
+// TODO
+router.post("/login", protectWithoutWorkspace, async (req, res, next) => {
+  const tokenInfo = await getTokenInfo(req.headers.authorization as string);
+  const { id } = tokenInfo;
+  const { workspaceId } = req.body;
 });
 
 export default router;
