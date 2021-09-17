@@ -6,17 +6,19 @@ import { protect, protectWithoutWorkspace } from "middlewares/auth";
 
 const router = Router();
 
-router.post("/", async (req, res) => {
+router.post("/", protectWithoutWorkspace, async (req, res) => {
   const tokenInfo = await getTokenInfo(req.headers.authorization as string);
   const { id: userId } = tokenInfo;
   const { name, description } = req.body;
-  res.send(WorkspaceService.create({ userId, name, description }));
+  res.send(await WorkspaceService.create({ userId, name, description }));
 });
 
 router.get("/", async (req, res, next) => {
   const data = await getTokenInfo(req.headers.authorization as string);
-  const username = (data as JwtPayload).username;
-  res.send(await WorkspaceService.getAll(username));
+
+  const { id } = data as JwtPayload;
+  console.log({ data, id });
+  res.send(await WorkspaceService.getAll(id));
 });
 
 export default router;

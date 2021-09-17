@@ -8,17 +8,13 @@ import { createConnection } from "typeorm";
 config();
 const port = parseInt(process.env.PORT || "3000");
 
-createConnection()
-  .then(() => {
-    const App = express();
-    App.use(cors());
-    App.use(json());
-    App.use(routes());
+createConnection().then(() => {
+  const App = express();
+  App.use(cors());
+  App.use(json());
+  App.use(routes());
 
-    App.listen(port, () => {
-      console.log(`server running in port ${port}`);
-    });
-  })
-  .catch((error) => {
-    console.log(error);
+  App.listen(port, () => {
+    console.log(`server running in port ${port}`);
   });
+});
