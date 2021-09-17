@@ -34,7 +34,5 @@ export const getTokenInfo = async(authorizationHeader: string) => {
     throw { status: 400, message: "token invalido" };
   }
 
-  console.log(decoded)
-
   return decoded as JwtPayload;
 };

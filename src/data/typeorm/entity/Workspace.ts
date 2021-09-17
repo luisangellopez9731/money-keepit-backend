@@ -1,10 +1,10 @@
-import { Entity, Column, ManyToMany } from "typeorm";
-import { IUser } from "./User";
+import { IUser, User } from "./User";
 import { CommonProperties } from "./CommonProperties";
+import { Entity, Column, ManyToMany, JoinTable } from "typeorm";
 
 export interface InsertWorkspace {
   name: string;
-  description?: string
+  description?: string;
   userId: string;
 }
 
@@ -17,9 +17,10 @@ export class Workspace extends CommonProperties implements IWorkspace {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ default: "" })
   description: string;
 
-  @ManyToMany("Workspace", "User")
+  @ManyToMany(() => User, (user) => user.workspaces)
+  @JoinTable()
   users: IUser[];
 }

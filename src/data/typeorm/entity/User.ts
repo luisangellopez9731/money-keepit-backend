@@ -1,5 +1,11 @@
-import { Entity, Column, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
-import { IWorkspace } from "./Workspace";
+import {
+  Entity,
+  Column,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+  JoinTable,
+} from "typeorm";
+import { IWorkspace, Workspace } from "./Workspace";
 import { CommonProperties } from "./CommonProperties";
 
 export interface InsertUser {
@@ -30,6 +36,6 @@ export class User implements IUser {
   @Column({ nullable: false })
   password: string;
 
-  @ManyToMany("Workspace", "User")
+  @ManyToMany(() => Workspace, workspace => workspace.users)
   workspaces?: IWorkspace[];
 }
