@@ -16,7 +16,6 @@ export class WorkspaceService {
       };
     }
 
-    console.log(user);
     return user.workspaces || [];
   };
   static create = async (workspace: InsertWorkspace) => {

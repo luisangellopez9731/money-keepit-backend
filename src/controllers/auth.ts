@@ -47,9 +47,40 @@ router.post("/login-for-workspace", async (req, res, next) => {
 
 // TODO
 router.post("/login", protectWithoutWorkspace, async (req, res, next) => {
-  const tokenInfo = await getTokenInfo(req.headers.authorization as string);
-  const { id } = tokenInfo;
-  const { workspaceId } = req.body;
+  console.log('login')
+  const authorizationHeader = req.headers.authorization;
+  let login;
+
+  if (authorizationHeader) {
+    const token = getTokenFromAuthorizationHeader(
+      req.headers.authorization as string
+    );
+    const valid = await verifyToken(token);
+    if (!valid) {
+      res.status(400).send("El token no es valido");
+      return;
+    }
+
+    const decoded = valid as JwtPayload;
+    console.log(decoded)
+    login = await AuthService.doLoginWithWorkspace(
+      decoded.id,
+      req.body.workspaceId
+    );
+  } else {
+    res.status(400).send("No authorization Header");
+    return;
+  }
+  if (typeof login == "string") {
+    res.send({ token: login });
+  } else {
+    const { status, message } = login;
+    if (status != 500) {
+      res.status(status).send(message);
+    } else {
+      next(message);
+    }
+  }
 });
 
 export default router;

@@ -28,20 +28,17 @@ export class AuthService {
     return token;
   };
 
-  static doLoginWithWorkspace = async (
-    username: string,
-    workspaceId: string
-  ) => {
-    const user = await UserService.get({ username });
+  static doLoginWithWorkspace = async (id: string, workspaceId: string) => {
+    const user = await UserService.get({ id });
 
-    if (!user) return error(404, `usuario ${username} no existe`);
+    if (!user) return error(404, `usuario con id ${id} no existe`);
 
     const getWorkspace = (id: string) => {
       return user.workspaces?.filter((ws) => ws.id === id);
     };
     const workspace = getWorkspace(workspaceId);
 
-    const token = await generateToken({ username, workspace });
+    const token = await generateToken({ id, workspace });
 
     return token;
   };
