@@ -8,13 +8,14 @@ export const protectWithoutWorkspace = async (
   next: NextFunction
 ) => {
   const authorizationHeader = req.headers.authorization;
+  console.log({ authorizationHeader });
   if (!authorizationHeader) {
     res.status(400).send("no Authorization Header provided");
     return;
   }
 
   const decoded = await getTokenInfo(authorizationHeader);
-
+  console.log({ decoded });
   if (!decoded) {
     res.status(400).send("Token is not valid");
     return;

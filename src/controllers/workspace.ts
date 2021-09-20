@@ -17,7 +17,6 @@ router.get("/", async (req, res, next) => {
   const data = await getTokenInfo(req.headers.authorization as string);
 
   const { id } = data as JwtPayload;
-  console.log({ data, id });
   res.send(await WorkspaceService.getAll(id));
 });
 
