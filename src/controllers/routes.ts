@@ -9,8 +9,9 @@ import {
 import workSpace from "./workspace";
 import { AutoCrud } from "core/auto-rest-crud";
 import { protect, protectWithoutWorkspace } from "middlewares/auth";
+import connection from "connection";
 
-function router() {
+async function router() {
   const router = Router();
   router.use("/workspaces", protectWithoutWorkspace, workSpace);
   router.use("/users", users);
@@ -21,24 +22,26 @@ function router() {
     middlewares: [protect],
   };
 
+  const conn = await connection();
+
   new AutoCrud({
     app: router,
     path: "/accounts",
-    repository: AccountRepository(),
+    repository: AccountRepository(conn),
     options: commonOptions,
   });
 
   new AutoCrud({
     app: router,
     path: "/categories",
-    repository: CategoryRepository(),
+    repository: CategoryRepository(conn),
     options: commonOptions,
   });
 
   new AutoCrud({
     app: router,
     path: "/transactions",
-    repository: TransactionRepository(),
+    repository: TransactionRepository(conn),
     options: commonOptions,
   });
 

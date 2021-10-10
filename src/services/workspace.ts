@@ -1,10 +1,11 @@
 import { User } from "data/typeorm/entity";
 import { WorkspaceRepository, UserRepository } from "data/typeorm/repositories";
 import { InsertWorkspace, Workspace } from "../data/typeorm/entity/Workspace";
+import connection from 'connection';
 
 export class WorkspaceService {
   static getAll = async (id: string) => {
-    const user = await UserRepository().findOne({
+    const user = await UserRepository(await connection()).findOne({
       where: { id },
       relations: ["workspaces"],
     });
@@ -19,7 +20,7 @@ export class WorkspaceService {
     return user.workspaces || [];
   };
   static create = async (workspace: InsertWorkspace) => {
-    const user = await UserRepository().findOne({
+    const user = await UserRepository(await connection()).findOne({
       where: { id: workspace.userId },
     });
 
@@ -27,6 +28,6 @@ export class WorkspaceService {
     workspace1.name = workspace.name;
     workspace1.description = workspace.description || "";
     workspace1.users = [user as User];
-    return await WorkspaceRepository().save(workspace1);
+    return await WorkspaceRepository(await connection()).save(workspace1);
   };
 }
