@@ -2,6 +2,7 @@ import { InsertUser } from "data/typeorm/entity/User";
 import { UserRepository } from "data/typeorm/repositories";
 import { compare, generateToken, verifyToken } from "utils";
 import { UserService } from "services/user";
+import conn from "connection";
 
 function error(status: number, message: string) {
   return {
@@ -11,7 +12,7 @@ function error(status: number, message: string) {
 }
 export class AuthService {
   static doLogin = async (userData: InsertUser) => {
-    const user = await UserRepository().findOne({
+    const user = await UserRepository(await conn()).findOne({
       where: {
         username: userData.username,
       },
@@ -34,7 +35,7 @@ export class AuthService {
     if (!user) return error(404, `usuario con id ${id} no existe`);
 
     const getWorkspace = (id: string) => {
-      return user.workspaces?.filter((ws) => ws.id === id);
+      return user.workspaces?.filter((ws: any) => ws.id === id);
     };
     const workspace = getWorkspace(workspaceId);
 

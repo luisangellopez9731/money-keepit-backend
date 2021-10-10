@@ -1,15 +1,16 @@
-import { EntityTarget, getRepository } from "typeorm";
-
+import { EntityTarget, Connection } from "typeorm";
 import { Account, Category, Transaction, User, Workspace } from "./entity";
 
-
-
-function getRepository_<T>(entity: EntityTarget<any>) {
-  return () => getRepository<T>(entity);
+function getRepository_<T>(connection: Connection, entity: EntityTarget<T>) {
+  return connection.getRepository(entity);
 }
 
-export const AccountRepository = getRepository_<Account>(Account);
-export const CategoryRepository = getRepository_(Category);
-export const TransactionRepository = getRepository_(Transaction);
-export const UserRepository = getRepository_<User>(User);
-export const WorkspaceRepository = getRepository_(Workspace);
+export const UserRepository = (conn: Connection) => getRepository_(conn, User);
+export const AccountRepository = (conn: Connection) =>
+  getRepository_(conn, Account);
+export const CategoryRepository = (conn: Connection) =>
+  getRepository_(conn, Category);
+export const WorkspaceRepository = (conn: Connection) =>
+  getRepository_(conn, Workspace);
+export const TransactionRepository = (conn: Connection) =>
+  getRepository_(conn, Transaction);
