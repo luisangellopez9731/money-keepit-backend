@@ -1,9 +1,9 @@
 import { Entity, Column, OneToOne, JoinColumn } from "typeorm";
-import { LoggedEntity } from "./CommonProperties";
+import { CommonProperties } from "./CommonProperties";
 import { Category } from "./Category";
 
 @Entity()
-export class Transaction extends LoggedEntity {
+export class Transaction extends CommonProperties {
   @Column()
   description: string;
 

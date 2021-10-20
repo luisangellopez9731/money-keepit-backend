@@ -1,7 +1,7 @@
 import { Entity, Column } from "typeorm";
-import { LoggedEntity } from "./CommonProperties";
+import { CommonProperties } from "./CommonProperties";
 @Entity()
-export class Account extends LoggedEntity {
+export class Account extends CommonProperties {
   @Column({ nullable: false })
   name: string;
 
