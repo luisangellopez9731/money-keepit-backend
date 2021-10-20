@@ -56,7 +56,7 @@ export default class AutoRestCrud<T> {
     return await this.repository.find({ where: { id } });
   }
   async create(data: T) {
-    return await this.repository.create(data);
+    return await this.repository.save(data);
   }
   async update(id: string, data: T) {
     return await this.repository.update(id, data);
