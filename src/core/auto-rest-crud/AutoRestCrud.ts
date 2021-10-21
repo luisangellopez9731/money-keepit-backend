@@ -12,7 +12,6 @@ import { normalize } from "path";
 
 export interface AutoCrudParams<T> {
   repository: Repository<T>;
-  app: Express | IRouter;
   path: string;
   options?: Options<T>;
 }
@@ -25,7 +24,6 @@ export type CustomHandler<T> = (
 ) => void;
 
 export interface Options<T> {
-  setRouterOnInit?: boolean;
   middlewares?: Handler[];
   getAll?: CustomHandler<T>;
   get?: CustomHandler<T>;
@@ -36,18 +34,13 @@ export interface Options<T> {
 
 export default class AutoRestCrud<T> {
   repository: Repository<T>;
-  app: Express | IRouter;
   path: string;
   options: Options<T>;
-  constructor({ app, path, repository, options }: AutoCrudParams<T>) {
+  router_ = Router();
+  constructor({ path, repository, options }: AutoCrudParams<T>) {
     this.repository = repository;
-    this.app = app;
     this.path = normalize(path);
     this.options = options || {};
-
-    if (this.options.setRouterOnInit) {
-      this.setRouter();
-    }
   }
   async getAll() {
     return await this.repository.find();
@@ -114,9 +107,5 @@ export default class AutoRestCrud<T> {
     });
 
     return router;
-  }
-
-  setRouter() {
-    this.app.use(this.router());
   }
 }
