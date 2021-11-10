@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import cors from "cors";
+import routes from "./routes";
 import { config } from "dotenv";
 import express, { json } from "express";
-import routes from "./controllers/routes";
 import { createConnection } from "connection";
 
 config();
