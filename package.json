@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/main.js",
-    "db:dev": "docker-compose up",
+    "db:dev": "sudo docker-compose up",
     "test": "set NODE_ENV=test & jest --watch",
     "start:dev": "ts-node-dev -r tsconfig-paths/register src/main.ts"
   },
