@@ -8,7 +8,7 @@
     "start": "node dist/main.js",
     "db:dev": "sudo docker-compose up --build",
     "test": "set NODE_ENV=test & jest --watch",
-    "start:dev": "ts-node-dev -r tsconfig-paths/register src/main.ts"
+    "start:dev": "DEBUG=express:* ts-node-dev -r tsconfig-paths/register src/main.ts"
   },
   "keywords": [],
   "author": "",
