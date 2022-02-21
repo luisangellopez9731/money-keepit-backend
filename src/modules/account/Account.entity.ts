@@ -24,7 +24,7 @@ export class Account extends CommonProperties {
     this.amount =
       this.initialAmount +
       this.transactions.reduce((acc, { amount, type }) => {
-        const mult = type == "expense" ? -1 : 1;
+        const mult = type == 1 ? -1 : 1;
         return acc + mult * amount;
       }, 0);
   }

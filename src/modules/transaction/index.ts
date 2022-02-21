@@ -1,2 +1,2 @@
-export * from "./Transation.entity";
+export * from "./Transaction.entity";
 export * from "./Transaction.controller";
