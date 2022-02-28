@@ -6,20 +6,22 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/main.js",
-    "db:dev": "sudo docker-compose up --build",
+    "db:dev": "docker-compose up --build",
     "test": "set NODE_ENV=test & jest --watch",
-    "start:dev": "DEBUG=express:* ts-node-dev -r tsconfig-paths/register src/main.ts"
+    "start:dev": "cross-env DEBUG=express:* ts-node-dev -r tsconfig-paths/register src/main.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/joi": "^17.2.3",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.3.3",
     "reflect-metadata": "^0.1.13",

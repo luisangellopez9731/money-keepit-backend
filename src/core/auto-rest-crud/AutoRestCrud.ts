@@ -1,9 +1,7 @@
 import { Repository } from "typeorm";
 import { Router, Handler, Request, Response, NextFunction } from "express";
 import { normalize } from "path";
-import { validate, validateOrReject } from "class-validator";
-import { ClassConstructor, plainToClass } from "class-transformer";
-
+import { ObjectSchema } from "joi";
 export type CustomHandler<T> = (
   req: Request,
   res: Response,
@@ -13,6 +11,9 @@ export type CustomHandler<T> = (
 
 export interface Options {
   middlewares?: Handler[];
+  validations?: {
+    post?: ObjectSchema;
+  };
 }
 
 export default class AutoRestCrud<T> {
@@ -33,22 +34,30 @@ export default class AutoRestCrud<T> {
     return await (await this.repository).find();
   }
   async get(id: string) {
-    return await (await this.repository).find({ where: { id } });
+    return await (await this.repository).findOne({ where: { id } });
   }
   async create(data: T) {
-    return await (await this.repository).save(data);
+    const obj = (await this.repository).create({ ...data });
+    return await (await this.repository).save(obj);
   }
-  async update(id: string, data: T) {
-    return await (await this.repository).update(id, data);
+  async update(id: string, data: Partial<T>) {
+    const obj = await this.get(id);
+    console.log(obj);
+    if (obj === undefined) {
+      throw new Error(`obj with id: ${id} doesn't exist`);
+    }
+    const result = await (
+      await this.repository
+    ).update(id, { ...obj, ...data, updatedDate: new Date() });
+    return await this.get(id);
   }
   async delete(id: string) {
     return await (await this.repository).delete(id);
   }
 
-  private async validateData(plain: any, cls: ClassConstructor<unknown>) {
+  private async validateData(plain: any, objectSchema: ObjectSchema) {
     try {
-      const object = plainToClass(cls, plain) as any;
-      await validateOrReject(object);
+      await objectSchema.validateAsync(plain);
     } catch (error) {
       throw error;
     }
@@ -60,6 +69,7 @@ export default class AutoRestCrud<T> {
     const middlewares = this.options.middlewares || [];
 
     router.get(this.path, ...middlewares, async (req, res, next) => {
+      console.log(await this.getAll());
       res.send(await this.getAll());
     });
 
@@ -69,17 +79,23 @@ export default class AutoRestCrud<T> {
     });
     router.post(this.path, ...middlewares, async (req, res, next) => {
       try {
-        const dto = {} as T;
-        this.validateData(req.body, dto as any);
+        if (this.options.validations?.post)
+          await this.validateData(req.body, this.options.validations.post);
+
         res.send(await this.create(req.body));
       } catch (errors) {
-        res.status(500).send(errors);
+        console.log(errors);
+        res.status(500).send({ errors });
       }
     });
 
-    router.put(pathId, ...middlewares, async (req, res, next) => {
-      const { id } = req.params;
-      res.send(await this.update(id, req.body));
+    router.patch(pathId, ...middlewares, async (req, res, next) => {
+      try {
+        const { id } = req.params;
+        res.send(await this.update(id, req.body));
+      } catch (errors) {
+        res.status(500).send({ errors });
+      }
     });
 
     router.delete(pathId, ...middlewares, async (req, res, next) => {

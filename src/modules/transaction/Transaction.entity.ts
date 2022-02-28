@@ -5,7 +5,7 @@ import {
   Connection,
   Entity,
   JoinColumn,
-  OneToMany,
+  ManyToOne,
   OneToOne,
 } from "typeorm";
 
@@ -23,7 +23,7 @@ export class Transaction extends CommonProperties {
   @Column("double")
   amount: number;
 
-  @OneToMany(() => Account, (account) => account.transactions)
+  @ManyToOne(() => Account, (account) => account.transactions)
   account: Account;
 
   @OneToOne(() => Category)

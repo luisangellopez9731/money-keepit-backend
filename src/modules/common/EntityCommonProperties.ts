@@ -3,6 +3,10 @@ import {
   AfterUpdate,
   Column,
   PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  BeforeInsert,
+  BeforeUpdate,
 } from "typeorm";
 
 export class CommonProperties {
@@ -15,15 +19,18 @@ export class CommonProperties {
   @Column()
   updatedDate: Date;
 
-  @AfterInsert()
-  setCreatedAndUpdateDates() {
-    const dateNow = new Date();
-    this.createdDate = dateNow;
-    this.updatedDate = dateNow;
+  // @AfterUpdate()
+  // updateUpdatedDate() {
+  //   this.updatedDate = new Date();
+  // }
+  @BeforeInsert()
+  private setCreateUpdateDate(): void {
+    this.createdDate = new Date();
+    this.updatedDate = new Date();
   }
 
-  @AfterUpdate()
-  updateUpdatedDate() {
+  @BeforeUpdate()
+  public setUpdateDate(): void {
     this.updatedDate = new Date();
   }
 }

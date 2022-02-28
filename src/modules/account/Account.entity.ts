@@ -1,26 +1,26 @@
 import { Transaction } from "modules";
 import { CommonProperties, getRepository } from "../common";
-import { Connection, Entity, Column, ManyToOne, AfterUpdate } from "typeorm";
+import { Connection, Entity, Column, AfterUpdate, OneToMany } from "typeorm";
 
 @Entity()
 export class Account extends CommonProperties {
   @Column({ nullable: false })
   name: string;
 
-  @Column({ nullable: false })
-  description: string;
+  @Column({ nullable: true })
+  description?: string;
 
-  @Column("double")
+  @Column("double", { nullable: false, default: 0 })
   initialAmount: number;
 
   @Column("double", { default: 0.0 })
   amount: Number;
 
-  @ManyToOne(() => Transaction, (transaction) => transaction.account)
+  @OneToMany(() => Transaction, (transaction) => transaction.account)
   transactions: Transaction[];
 
   @AfterUpdate()
-  updateAmountForTransactions() {
+  updateAmountFromTransactions() {
     this.amount =
       this.initialAmount +
       this.transactions.reduce((acc, { amount, type }) => {
