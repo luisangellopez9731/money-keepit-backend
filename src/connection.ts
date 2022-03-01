@@ -26,7 +26,7 @@ export const createConnection = async (
     migrations,
     subscribers,
     synchronize: true,
-    dropSchema: true,
+    dropSchema: false,
     logging: false,
     migrationsRun: true,
   };
