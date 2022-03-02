@@ -1,13 +1,11 @@
 import { Account, Category } from "modules";
 import { CommonProperties, getRepository } from "modules/common";
-import {
-  Column,
-  Connection,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToOne,
-} from "typeorm";
+import { Column, Connection, Entity, JoinColumn, ManyToOne } from "typeorm";
+
+export enum TransactionType {
+  income,
+  expense,
+}
 
 @Entity()
 export class Transaction extends CommonProperties {
@@ -18,7 +16,7 @@ export class Transaction extends CommonProperties {
   date: Date;
 
   @Column()
-  type: 0 | 1;
+  type: TransactionType;
 
   @Column("double")
   amount: number;
@@ -26,7 +24,7 @@ export class Transaction extends CommonProperties {
   @ManyToOne(() => Account, (account) => account.transactions)
   account: Account;
 
-  @OneToOne(() => Category)
+  @ManyToOne(() => Category, (category) => category.transactions)
   @JoinColumn()
   category: Category;
 }

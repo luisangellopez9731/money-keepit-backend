@@ -27,7 +27,7 @@ export const getTokenFromAuthorizationHeader = (
   return authorizationHeader.replace("Bearer ", "");
 };
 
-export const getTokenInfo = async(authorizationHeader: string) => {
+export const getTokenInfo = async (authorizationHeader: string) => {
   const token = getTokenFromAuthorizationHeader(authorizationHeader);
   const decoded = await verifyToken(token);
   if (!decoded) {
@@ -36,3 +36,11 @@ export const getTokenInfo = async(authorizationHeader: string) => {
 
   return decoded as JwtPayload;
 };
+
+export function getEnumNumberValues<T extends string | number>(e: any): T[] {
+  return typeof e === "object"
+    ? (Object.values(e) as any[]).filter(
+        (e: string | number) => typeof e === "number"
+      )
+    : [];
+}

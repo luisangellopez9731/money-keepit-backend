@@ -1,7 +1,7 @@
-import { Repository } from "typeorm";
-import { Router, Handler, Request, Response, NextFunction } from "express";
 import { normalize } from "path";
 import { ObjectSchema } from "joi";
+import { Repository } from "typeorm";
+import { Router, Handler, Request, Response, NextFunction } from "express";
 export type CustomHandler<T> = (
   req: Request,
   res: Response,
@@ -13,10 +13,11 @@ export interface Options {
   middlewares?: Handler[];
   validations?: {
     post?: ObjectSchema;
+    update?: ObjectSchema;
   };
 }
 
-export default class AutoRestCrud<T> {
+export default class AutoRestCrud<T, DtoCreate, DtoUpdate> {
   repository: Promise<Repository<T>>;
   path: string;
   options: Options;
@@ -36,11 +37,11 @@ export default class AutoRestCrud<T> {
   async get(id: string) {
     return await (await this.repository).findOne({ where: { id } });
   }
-  async create(data: T) {
+  async create(data: DtoCreate) {
     const obj = (await this.repository).create({ ...data });
     return await (await this.repository).save(obj);
   }
-  async update(id: string, data: Partial<T>) {
+  async update(id: string, data: DtoUpdate) {
     const obj = await this.get(id);
     console.log(obj);
     if (obj === undefined) {
@@ -55,7 +56,7 @@ export default class AutoRestCrud<T> {
     return await (await this.repository).delete(id);
   }
 
-  private async validateData(plain: any, objectSchema: ObjectSchema) {
+  public async validateData(plain: any, objectSchema: ObjectSchema) {
     try {
       await objectSchema.validateAsync(plain);
     } catch (error) {
@@ -80,7 +81,10 @@ export default class AutoRestCrud<T> {
     router.post(this.path, ...middlewares, async (req, res, next) => {
       try {
         if (this.options.validations?.post)
-          await this.validateData(req.body, this.options.validations.post);
+          await this.validateData(
+            req.body as DtoCreate,
+            this.options.validations.post
+          );
 
         res.send(await this.create(req.body));
       } catch (errors) {
@@ -92,7 +96,12 @@ export default class AutoRestCrud<T> {
     router.patch(pathId, ...middlewares, async (req, res, next) => {
       try {
         const { id } = req.params;
-        res.send(await this.update(id, req.body));
+        if (this.options.validations?.update)
+          await this.validateData(
+            req.body as DtoUpdate,
+            this.options.validations.update
+          );
+        res.send(await this.update(id, req.body as DtoUpdate));
       } catch (errors) {
         res.status(500).send({ errors });
       }

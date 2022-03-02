@@ -9,7 +9,7 @@ function router() {
   const router = Router();
 
   router.use(new AccountController().router());
-  router.use(new CategoryController().router());
+  // router.use(new CategoryController().router());
   router.use(new TransactionController().router());
 
   return router;
