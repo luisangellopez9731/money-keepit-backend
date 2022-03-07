@@ -1,22 +1,7 @@
-import { Repository } from "typeorm";
-import {
-  Express,
-  Router,
-  Handler,
-  IRouter,
-  Request,
-  Response,
-  NextFunction,
-} from "express";
 import { normalize } from "path";
-
-export interface AutoCrudParams<T> {
-  repository: Repository<T>;
-  app: Express | IRouter;
-  path: string;
-  options?: Options<T>;
-}
-
+import { ObjectSchema } from "joi";
+import { Repository } from "typeorm";
+import { Router, Handler, Request, Response, NextFunction } from "express";
 export type CustomHandler<T> = (
   req: Request,
   res: Response,
@@ -24,99 +9,108 @@ export type CustomHandler<T> = (
   next: NextFunction
 ) => void;
 
-export interface Options<T> {
-  setRouterOnInit?: boolean;
+export interface Options {
   middlewares?: Handler[];
-  getAll?: CustomHandler<T>;
-  get?: CustomHandler<T>;
-  post?: CustomHandler<T>;
-  put?: CustomHandler<T>;
-  delete?: CustomHandler<T>;
+  validations?: {
+    post?: ObjectSchema;
+    update?: ObjectSchema;
+  };
 }
 
-export default class AutoRestCrud<T> {
-  repository: Repository<T>;
-  app: Express | IRouter;
+export default class AutoRestCrud<T, DtoCreate, DtoUpdate> {
+  repository: Promise<Repository<T>>;
   path: string;
-  options: Options<T>;
-  constructor({ app, path, repository, options }: AutoCrudParams<T>) {
+  options: Options;
+  router_ = Router();
+  constructor(
+    path: string,
+    repository: Promise<Repository<T>>,
+    options?: Options
+  ) {
     this.repository = repository;
-    this.app = app;
-    this.path = normalize(path);
+    this.path = normalize(path).replace(/\\/g, "/");
     this.options = options || {};
-
-    if (this.options.setRouterOnInit) {
-      this.setRouter();
-    }
   }
   async getAll() {
-    return await this.repository.find();
+    return await (await this.repository).find();
   }
   async get(id: string) {
-    return await this.repository.find({ where: { id } });
+    return await (await this.repository).findOne({ where: { id } });
   }
-  async create(data: T) {
-    return await this.repository.create(data);
+  async create(data: DtoCreate) {
+    const obj = (await this.repository).create({ ...data });
+    return await (await this.repository).save(obj);
   }
-  async update(id: string, data: T) {
-    return await this.repository.update(id, data);
+  async update(id: string, data: DtoUpdate) {
+    const obj = await this.get(id);
+    console.log(obj);
+    if (obj === undefined) {
+      throw new Error(`obj with id: ${id} doesn't exist`);
+    }
+    const result = await (
+      await this.repository
+    ).update(id, { ...obj, ...data, updatedDate: new Date() });
+    return await this.get(id);
   }
   async delete(id: string) {
-    return await this.repository.delete(id);
+    return await (await this.repository).delete(id);
+  }
+
+  public async validateData(plain: any, objectSchema: ObjectSchema) {
+    try {
+      await objectSchema.validateAsync(plain);
+    } catch (error) {
+      throw error;
+    }
   }
 
   router() {
-    const pathId = normalize(this.path + "/:id");
+    const pathId = normalize(this.path + "/:id").replace(/\\/g, "/");
     const router = Router();
     const middlewares = this.options.middlewares || [];
-    const { getAll, get, post, put, delete: deleteHandler } = this.options;
 
     router.get(this.path, ...middlewares, async (req, res, next) => {
-      if (getAll) {
-        getAll(req, res, this.repository, next);
-      } else {
-        res.send(await this.getAll());
-      }
+      console.log(await this.getAll());
+      res.send(await this.getAll());
     });
 
     router.get(pathId, ...middlewares, async (req, res, next) => {
-      if (get) {
-        get(req, res, this.repository, next);
-      } else {
-        const { id } = req.params;
-        res.send(await this.get(id));
-      }
+      const { id } = req.params;
+      res.send(await this.get(id));
     });
     router.post(this.path, ...middlewares, async (req, res, next) => {
-      if (post) {
-        post(req, res, this.repository, next);
-      } else {
+      try {
+        if (this.options.validations?.post)
+          await this.validateData(
+            req.body as DtoCreate,
+            this.options.validations.post
+          );
+
         res.send(await this.create(req.body));
+      } catch (errors) {
+        res.status(500).send((<Error>errors).message);
       }
     });
 
-    router.put(pathId, ...middlewares, async (req, res, next) => {
-      if (put) {
-        put(req, res, this.repository, next);
-      } else {
+    router.patch(pathId, ...middlewares, async (req, res, next) => {
+      try {
         const { id } = req.params;
-        res.send(await this.update(id, req.body));
+        if (this.options.validations?.update)
+          await this.validateData(
+            req.body as DtoUpdate,
+            this.options.validations.update
+          );
+        res.send(await this.update(id, req.body as DtoUpdate));
+      } catch (errors) {
+        res.status(500).send((<Error>errors).message);
       }
     });
 
     router.delete(pathId, ...middlewares, async (req, res, next) => {
-      if (deleteHandler) {
-        deleteHandler(req, res, this.repository, next);
-      } else {
-        const { id } = req.params;
-        res.send(await this.delete(id));
-      }
+      const { id } = req.params;
+      res.send(await this.delete(id));
     });
 
     return router;
-  }
-
-  setRouter() {
-    this.app.use(this.router());
   }
 }
