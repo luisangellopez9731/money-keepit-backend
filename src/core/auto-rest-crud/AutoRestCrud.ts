@@ -88,8 +88,7 @@ export default class AutoRestCrud<T, DtoCreate, DtoUpdate> {
 
         res.send(await this.create(req.body));
       } catch (errors) {
-        console.log(errors);
-        res.status(500).send({ errors });
+        res.status(500).send((<Error>errors).message);
       }
     });
 
@@ -103,7 +102,7 @@ export default class AutoRestCrud<T, DtoCreate, DtoUpdate> {
           );
         res.send(await this.update(id, req.body as DtoUpdate));
       } catch (errors) {
-        res.status(500).send({ errors });
+        res.status(500).send((<Error>errors).message);
       }
     });
 

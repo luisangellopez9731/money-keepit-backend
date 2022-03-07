@@ -3,7 +3,7 @@ import { AutoCrud } from "core/auto-rest-crud";
 import { Transaction, TransactionRepository } from "./Transaction.entity";
 import { CreateDto, UpdateDto } from "./dtos";
 import { createSchema, updateSchema } from "./joi.schema";
-import { AccountRepository } from "modules";
+import { AccountRepository, CategoryRepository } from "modules";
 
 export class TransactionController extends AutoCrud<
   Transaction,
@@ -24,6 +24,11 @@ export class TransactionController extends AutoCrud<
     const account = await accountRepository.findOne(data.account);
     if (account == undefined) {
       throw new Error(`no account with id: ${data.account} found`);
+    }
+    const categoryRepository = await CategoryRepository(getConnection());
+    const category = await categoryRepository.findOne(data.category);
+    if (category == undefined) {
+      throw new Error(`no category with id: ${data.account} found`);
     }
     const transaction = (await this.repository).create(data as any) as any;
 
