@@ -6,7 +6,7 @@ import express, { json } from "express";
 import { createConnection } from "connection";
 
 config();
-const port = parseInt(process.env.PORT || "3000");
+const port = parseInt(process.env.PORT || "3001");
 
 console.log("Creating Connection");
 createConnection().then(async () => {

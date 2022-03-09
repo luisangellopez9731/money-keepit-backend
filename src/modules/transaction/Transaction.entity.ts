@@ -1,4 +1,4 @@
-import { Account, Category } from "modules";
+import { Account, Category, Workspace } from "modules";
 import { CommonProperties, getRepository } from "modules/common";
 import { Column, Connection, Entity, JoinColumn, ManyToOne } from "typeorm";
 
@@ -27,6 +27,9 @@ export class Transaction extends CommonProperties {
   @ManyToOne(() => Category, (category) => category.transactions)
   @JoinColumn()
   category: Category;
+
+  @ManyToOne(() => Workspace, (workspace) => workspace.transactions)
+  workspace: Workspace;
 }
 
 export const TransactionRepository = (c: Connection) =>

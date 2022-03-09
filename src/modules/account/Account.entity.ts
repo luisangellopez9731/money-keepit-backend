@@ -1,4 +1,4 @@
-import { Transaction } from "modules";
+import { Transaction, Workspace } from "modules";
 import { CommonProperties, getRepository } from "../common";
 import {
   Connection,
@@ -7,6 +7,7 @@ import {
   AfterUpdate,
   OneToMany,
   AfterLoad,
+  ManyToOne,
 } from "typeorm";
 
 @Entity()
@@ -25,6 +26,9 @@ export class Account extends CommonProperties {
 
   @OneToMany(() => Transaction, (transaction) => transaction.account)
   transactions: Transaction[];
+
+  @ManyToOne(() => Workspace, (workspace) => workspace.accounts)
+  workspace: Workspace;
 }
 
 export const AccountRepository = (c: Connection) => getRepository(c, Account);
