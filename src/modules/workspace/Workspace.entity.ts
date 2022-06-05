@@ -10,14 +10,14 @@ export class Workspace extends CommonProperties {
   @Column({ nullable: true })
   description?: string;
 
-  @OneToMany(() => Account, (account) => account.workspace)
-  accounts: Account[];
+  // @OneToMany(() => Account, (account) => account.workspace)
+  // accounts: Account[];
 
-  @OneToMany(() => Transaction, (transaction) => transaction.workspace)
-  transactions: Transaction[];
+  // @OneToMany(() => Transaction, (transaction) => transaction.workspace)
+  // transactions: Transaction[];
 
-  @OneToMany(() => Category, (category) => category.workspace)
-  categories: Category[];
+  // @OneToMany(() => Category, (category) => category.workspace)
+  // categories: Category[];
 }
 
 export const WorkSpaceRepository = (c: Connection) =>

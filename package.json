@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/main.js",
-    "db:dev": "docker-compose up --build",
+    "db:dev": "sudo docker-compose up --build",
     "test": "set NODE_ENV=test & jest --watch",
     "start:dev": "cross-env DEBUG=express:* ts-node-dev -r tsconfig-paths/register src/main.ts"
   },
@@ -24,6 +24,7 @@
     "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.3.3",
+    "pg": "^8.7.3",
     "reflect-metadata": "^0.1.13",
     "supertest": "^6.1.6",
     "typeorm": "^0.2.34"

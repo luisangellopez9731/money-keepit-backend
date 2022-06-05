@@ -18,10 +18,13 @@ export default class AutoRestCrud<T, DtoCreate, DtoUpdate> {
   router_ = Router();
   constructor(
     path: string,
-    repository: Promise<Repository<T>>,
+    repository: Promise<Repository<T>> | null,
     options?: Options
   ) {
-    this.repository = repository;
+    if(repository){
+      this.repository = repository;
+    }
+    
     this.path = normalize(path).replace(/\\/g, "/");
     this.options = options || {};
   }
@@ -37,7 +40,6 @@ export default class AutoRestCrud<T, DtoCreate, DtoUpdate> {
   }
   async updateService(id: string, data: DtoUpdate) {
     const obj = await this.getService(id);
-    console.log(obj);
     if (obj === undefined) {
       throw new Error(`obj with id: ${id} doesn't exist`);
     }
@@ -58,17 +60,16 @@ export default class AutoRestCrud<T, DtoCreate, DtoUpdate> {
     }
   }
 
-  async getAll(req: Request, res: Response, next: NextFunction) {
-    console.log(await this.getAllService());
+  getAll = async (req: Request, res: Response, next: NextFunction) => {
     res.send(await this.getAllService());
-  }
+  };
 
-  async get(req: Request, res: Response, next: NextFunction) {
+  get = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     res.send(await this.getService(id));
-  }
+  };
 
-  async create(req: Request, res: Response, next: NextFunction) {
+  create = async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (this.options.validations?.post)
         await this.validateData(
@@ -80,9 +81,9 @@ export default class AutoRestCrud<T, DtoCreate, DtoUpdate> {
     } catch (errors) {
       res.status(500).send((<Error>errors).message);
     }
-  }
+  };
 
-  async update(req: Request, res: Response, next: NextFunction) {
+  update = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
       if (this.options.validations?.update)
@@ -94,23 +95,23 @@ export default class AutoRestCrud<T, DtoCreate, DtoUpdate> {
     } catch (errors) {
       res.status(500).send((<Error>errors).message);
     }
-  }
+  };
 
-  async delete(req: Request, res: Response, next: NextFunction) {
+  delete = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     res.send(await this.deleteService(id));
-  }
+  };
 
   router() {
     const pathId = normalize(this.path + "/:id").replace(/\\/g, "/");
     const router = Router();
     const middlewares = this.options.middlewares || [];
-
-    router.get(this.path, ...middlewares, this.getAll);
-    router.get(pathId, ...middlewares, this.get);
-    router.post(this.path, ...middlewares, this.create);
-    router.patch(pathId, ...middlewares, this.update);
-    router.delete(pathId, ...middlewares, this.delete);
+    const { getAll, get, create, update, delete: delete_ } = this;
+    router.get(this.path, ...middlewares, getAll);
+    router.get(pathId, ...middlewares, get);
+    router.post(this.path, ...middlewares, create);
+    router.patch(pathId, ...middlewares, update);
+    router.delete(pathId, ...middlewares, delete_);
 
     return router;
   }
