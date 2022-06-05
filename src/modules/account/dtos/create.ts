@@ -1,5 +1,8 @@
+import { Workspace } from "modules";
+
 export class CreateDto {
   name: string;
   description?: string;
-  initialAmount?: number;
+  amount?: number;
+  workspace: Workspace["id"];
 }

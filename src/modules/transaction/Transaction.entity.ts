@@ -18,7 +18,7 @@ export class Transaction extends CommonProperties {
   @Column()
   type: TransactionType;
 
-  @Column("double")
+  @Column("double precision")
   amount: number;
 
   @ManyToOne(() => Account, (account) => account.transactions)
